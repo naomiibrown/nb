@@ -1,0 +1,27 @@
+import pandas as pd
+import numpy as np 
+df = pd.read_csv("adult.csv",sep=",")
+df.head()
+df.columns = ["Age", "WorkClass", "fnlwgt", "Education", "Experience", "Marital-Status", "Occupation", "Relation","Race", "Gender", "Capital-Gain", "Capital-Loss", "Hours-Per-Week", "Country", "Target"]
+df.head()
+df.isnull().sum()
+df = df.dropna()
+df.shape
+df["Gender"].unique()
+df_male = df[df["Gender"]==" Male"]
+df_male
+df_female = df[df["Gender"]==" Female"]
+df_female
+df["Country"].unique()
+df_country_India = df[df["Country"] == " India"]
+df_country_India
+df_merge_male_india = pd.concat([df_male,df_country_India])
+df_merge_male_india
+df_age = df.sort_values("Age")
+df_age
+df_transpose = df.transpose()
+df_transpose
+df_melt = pd.melt(df,id_vars=["Education","Occupation"],value_name="value",var_name="Metric")
+df_melt
+df_cast = pd.pivot_table(df,index=["WorkClass","Occupation"],values="Hours-Per-Week")
+df_cast

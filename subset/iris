@@ -1,0 +1,24 @@
+import pandas as pd
+import numpy as np
+df = pd.read_csv("Iris.csv",sep=",")
+df.head()
+df.columns = ["SpealWidthCm","SepalheightCm","PetalWidthCm","PetalHeightCm","Species"]
+df.head()
+df.isnull().sum()
+df["Species"].unique()
+df_Iris_Setosa = df[df["Species"] == "Iris-setosa"]
+df_Iris_Setosa.head()
+df.shape
+df_Iris_Versicolor = df[df["Species"] == "Iris-versicolor"]
+df_Iris_Versicolor.head()
+df_Iris_Versicolor.shape
+df_merge_Sv = pd.concat([df_Iris_Setosa,df_Iris_Versicolor])
+df_merge_Sv
+df_sort_petal_length = df.sort_values(by=["PetalWidthCm"])
+df_sort_petal_length
+data_Transpose = df.transpose()
+data_Transpose
+df_melted = pd.melt(df,id_vars=["SpealWidthCm","PetalWidthCm","Species"])
+df_melted.head()
+df_casting = pd.pivot_table(df,index=["Species"])
+df_casting.head()

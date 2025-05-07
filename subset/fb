@@ -1,0 +1,56 @@
+import pandas as pd 
+import numpy as np
+df = pd.read_csv("dataset_Facebook.csv",sep=";")
+df.head()
+df.isnull().sum()
+df["Paid"].unique()
+df["Paid"].fillna(0,inplace=True)
+df["Paid"].unique()
+df["like"].unique()
+df["like"].fillna(df["like"].mean(),inplace = True)
+df["share"].fillna(df["share"].mean(),inplace=True)
+df.isnull().sum()
+df.shape
+df["Type"].unique()
+df.info()
+df_photo=df[df["Type"]=="Photo"]
+df_photo.head(5)
+df_status=df[df["Type"] == "Status"]
+df_status.head()
+df_video=df[df["Type"]=="Video"]
+df_video.head()
+df_link=df[df["Type"]=="Link"]
+df_link.head(5)
+
+df_merged_ps=pd.concat([df_photo,df_status]);
+df_merged_ps
+print("Photo Subset Shape")
+df_photo.shape
+print("Status Subset Shape")
+df_status.shape
+print("Photo status subset")
+df_merged_ps.shape
+
+#sort
+df_sort_like = df.sort_values(by=["like"])
+df_sort_like.head()
+df_sort_comment = df.sort_values(by=["comment"])
+df_sort_comment.head()
+df_sort_share = df.sort_values(by=["share"])
+df_sort_share
+
+#tranpose
+df_transpose =df.transpose()
+df_transpose
+
+#shape and reshape data
+df['index']=range(1,len(df)+1)
+df.head()
+
+#melting data to long format
+df_melted = pd.melt(df,id_vars=["Type","Category"],value_name="value",var_name="Metrics");
+df_melted
+df_melted=pd.melt(df,id_vars="index",var_name="Type")
+df_melted
+casting = pd.pivot_table(df,index=["Type","Category"],values="like",fill_value=0)
+casting

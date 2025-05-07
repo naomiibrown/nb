@@ -1,0 +1,37 @@
+import pandas as pd
+
+# Read the dataset from the CSV file with error handling and set low_memory=False to avoid chunked reading
+df = pd.read_csv('movies_metadata.csv', on_bad_lines='skip', quotechar='"', encoding='utf-8', low_memory=False)
+
+# Convert 'popularity' column to numeric, coercing errors to NaN
+df['popularity'] = pd.to_numeric(df['popularity'], errors='coerce')
+
+# m. Create data subsets for different languages (original_language)
+en_subset = df[df['original_language'] == 'en']
+
+# n. Merge two subsets (e.g., merge en_subset with a subset based on popularity > 10)
+high_popularity = df[df['popularity'] > 10]
+merged_subsets = pd.concat([en_subset, high_popularity], axis=0).drop_duplicates()
+
+# o. Sort Data using customer ratings (vote_average)
+sorted_df = df.sort_values(by='vote_average', ascending=False)
+
+# p. Transposing Data
+transposed_df = df.transpose()
+
+# q. Melting Data to long format
+melted_df = pd.melt(df, id_vars=['original_language'],
+                    value_vars=['vote_average', 'vote_count', 'popularity', 'runtime', 'revenue'],
+                    var_name='measurement', value_name='value')
+
+# r. Casting data to wide format
+wide_df = melted_df.pivot_table(index='original_language', columns='measurement', values='value', aggfunc='mean')
+wide_df = wide_df.reset_index()
+
+# Print results to verify
+print("English subset:\n", en_subset.head())
+print("Merged Subsets:\n", merged_subsets.head())
+print("Sorted by Vote Average:\n", sorted_df.head())
+print("Transposed DataFrame:\n", transposed_df)
+print("Melted DataFrame:\n", melted_df.head())
+print("Wide Format DataFrame:\n", wide_df)

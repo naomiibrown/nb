@@ -1,0 +1,86 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+
+# Load the dataset with defined column names
+columns = ['age', 'workclass', 'fnlwgt', 'education', 'education_num', 'marital_status',
+           'occupation', 'relationship', 'race', 'sex', 'capital_gain', 'capital_loss',
+           'hours_per_week', 'native_country', 'income']
+df = pd.read_csv('adult.csv', header=None, names=columns)
+
+# Set the seaborn style
+sns.set(style="whitegrid")
+
+# a. Histograms
+# Objective: To visualize the distribution of continuous variables (age, hours_per_week, education_num)
+plt.figure(figsize=(15, 5))
+plt.subplot(1, 3, 1)
+plt.hist(df['age'], bins=20, color='skyblue', edgecolor='black')
+plt.title('Histogram of Age')
+plt.xlabel('Age')
+plt.ylabel('Frequency')
+
+plt.subplot(1, 3, 2)
+plt.hist(df['hours_per_week'], bins=20, color='lightcoral', edgecolor='black')
+plt.title('Histogram of Hours per Week')
+plt.xlabel('Hours per Week')
+plt.ylabel('Frequency')
+
+plt.subplot(1, 3, 3)
+plt.hist(df['education_num'], bins=20, color='lightgreen', edgecolor='black')
+plt.title('Histogram of Education Level (Years)')
+plt.xlabel('Education Num')
+plt.ylabel('Frequency')
+plt.tight_layout()
+plt.show()
+
+# b. Pie Charts
+# Objective: To show the proportion of individuals by income category
+income_counts = df['income'].value_counts()
+plt.figure(figsize=(8, 8))
+plt.pie(income_counts, labels=income_counts.index, autopct='%1.1f%%', colors=['lightcoral', 'lightgreen'], startangle=90)
+plt.title('Pie Chart of Income Categories')
+plt.axis('equal')
+plt.legend(['<=50K', '>50K'], loc='best')
+plt.show()
+
+# c. Box Plots
+# Objective: To visualize the spread and identify outliers in hours_per_week across income categories
+plt.figure(figsize=(10, 6))
+sns.boxplot(x='income', y='hours_per_week', data=df, palette=['lightcoral', 'lightgreen'])
+plt.title('Box Plot of Hours per Week by Income Category')
+plt.xlabel('Income (<=50K, >50K)')
+plt.ylabel('Hours per Week')
+plt.show()
+
+# d. Scatter Plots
+# Objective: To explore the relationship between age and hours_per_week, colored by income category
+plt.figure(figsize=(10, 6))
+sns.scatterplot(x='age', y='hours_per_week', hue='income', data=df, palette=['skyblue', 'purple'], alpha=0.6)
+plt.title('Scatter Plot of Age vs Hours per Week by Income')
+plt.xlabel('Age')
+plt.ylabel('Hours per Week')
+plt.legend(['<=50K', '>50K'])
+plt.show()
+
+# e. Scatter Plot with Box Plots
+# Objective: To combine scatter plot of age vs hours_per_week with box plots to show distribution and outliers
+plt.figure(figsize=(12, 6))
+
+# Scatter Plot
+plt.subplot(1, 2, 1)
+sns.scatterplot(x='age', y='hours_per_week', hue='income', data=df, palette=['skyblue', 'purple'], alpha=0.6)
+plt.title('Scatter Plot of Age vs Hours per Week')
+plt.xlabel('Age')
+plt.ylabel('Hours per Week')
+plt.legend(['<=50K', '>50K'])
+
+# Box Plot
+plt.subplot(1, 2, 2)
+sns.boxplot(x='income', y='hours_per_week', data=df, palette=['lightcoral', 'lightgreen'])
+plt.title('Box Plot of Hours per Week by Income')
+plt.xlabel('Income (<=50K, >50K)')
+plt.ylabel('Hours per Week')
+plt.tight_layout()
+plt.show()

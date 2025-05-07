@@ -1,0 +1,85 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+
+# Load the dataset
+df = pd.read_csv('heart.csv')
+
+# Set the seaborn style
+sns.set(style="whitegrid")
+
+# a. Histograms
+# Objective: To show the distribution of continuous variables like age, cholesterol, and maximum heart rate
+plt.figure(figsize=(15, 5))
+plt.subplot(1, 3, 1)
+plt.hist(df['age'], bins=20, color='skyblue', edgecolor='black')
+plt.title('Histogram of Age')
+plt.xlabel('Age')
+plt.ylabel('Frequency')
+
+plt.subplot(1, 3, 2)
+plt.hist(df['chol'], bins=20, color='lightcoral', edgecolor='black')
+plt.title('Histogram of Cholesterol')
+plt.xlabel('Cholesterol (mg/dl)')
+plt.ylabel('Frequency')
+
+plt.subplot(1, 3, 3)
+plt.hist(df['thalach'], bins=20, color='lightgreen', edgecolor='black')
+plt.title('Histogram of Max Heart Rate')
+plt.xlabel('Thalach (bpm)')
+plt.ylabel('Frequency')
+
+
+plt.tight_layout()
+plt.show()
+
+# b. Pie Charts
+# Objective: To show the proportion of patients with and without heart disease (target)
+target_counts = df['target'].value_counts()
+plt.figure(figsize=(8, 8))
+plt.pie(target_counts, labels=target_counts.index, autopct='%1.1f%%', colors=['lightcoral', 'lightgreen'], startangle=90)
+plt.title('Pie Chart of Heart Disease Presence')
+plt.axis('equal')
+plt.legend(['No Disease (0)', 'Disease (1)'], loc='best')
+plt.show()
+
+# c. Box Plots
+# Objective: To visualize the spread and identify outliers in cholesterol levels across heart disease status
+plt.figure(figsize=(10, 6))
+sns.boxplot(x='target', y='chol', data=df, palette=['lightcoral', 'lightgreen'])
+plt.title('Box Plot of Cholesterol by Heart Disease Status')
+plt.xlabel('Target (0: No Disease, 1: Disease)')
+plt.ylabel('Cholesterol (mg/dl)')
+plt.show()
+
+# d. Scatter Plots
+# Objective: To explore the relationship between age and maximum heart rate, colored by heart disease status
+plt.figure(figsize=(10, 6))
+sns.scatterplot(x='age', y='thalach', hue='target', data=df, palette=['skyblue', 'purple'], alpha=0.6)
+plt.title('Scatter Plot of Age vs Max Heart Rate by Heart Disease')
+plt.xlabel('Age')
+plt.ylabel('Max Heart Rate (bpm)')
+plt.legend(['No Disease (0)', 'Disease (1)'])
+plt.show()
+
+# e. Scatter Plot with Box Plots
+# Objective: To combine scatter plot of age vs cholesterol with box plots to show distribution and outliers
+plt.figure(figsize=(12, 6))
+
+# Scatter Plot
+plt.subplot(1, 2, 1)
+sns.scatterplot(x='age', y='chol', hue='target', data=df, palette=['skyblue', 'purple'], alpha=0.6)
+plt.title('Scatter Plot of Age vs Cholesterol')
+plt.xlabel('Age')
+plt.ylabel('Cholesterol (mg/dl)')
+plt.legend(['No Disease (0)', 'Disease (1)'])
+
+# Box Plots
+plt.subplot(1, 2, 2)
+sns.boxplot(x='target', y='chol', data=df, palette=['lightcoral', 'lightgreen'])
+plt.title('Box Plot of Cholesterol by Heart Disease')
+plt.xlabel('Target (0: No Disease, 1: Disease)')
+plt.ylabel('Cholesterol (mg/dl)')
+plt.tight_layout()
+plt.show()
