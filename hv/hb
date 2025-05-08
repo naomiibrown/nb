@@ -1,0 +1,47 @@
+create table hive_int(id int, name varchar(10), sal float)
+row format delimited
+fields terminated by ','
+lines terminated by '\n'
+stored as textfile;
+
+gedit file-x.txt
+101, 'aaa', 5000.2
+102,'bbb',4000.4
+103,'ccc',3000.9
+
+
+load data local inpath 'file-x.txt' into table hive_int;
+select * from hive_int;
+
+
+create external table hive_ext(id int, name varchar(10), sal float)
+row format delimited
+fields terminated by ','
+lines terminated by '\n'
+stored as textfile;
+
+
+
+insert into hive_ext select * from hive_int;
+select * from hive_ext;
+show tables;
+
+
+new terminal
+hbase shell
+create 'table','cf'
+
+go to hive terminal
+
+create external table hive_ext1(id int, name varchar(10), sal float)
+STORED by 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
+WITH SERDEPROPERTIES("hbase.columns.mapping"=":key,cf:name,cf:sal")
+TBLPROPERTIES("hbase.table.name"="table");
+
+
+insert into hive_ext1 select * from hive_int;
+select * from hive_ext1;
+
+
+hbase 
+scan 'table'
