@@ -1,0 +1,43 @@
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB, MultinomialNB
+from sklearn.metrics import accuracy_score
+import warnings
+
+warnings.filterwarnings('ignore')
+data = pd.read_csv('hepatitis.csv')
+data.columns = ['CLASS', 'AGE', 'SEX', 'STEROID', 'ANTIVIRALS', 'FATIGUE', 'MALAISE', 'ANOREXIA', 'LIVER BIG', 'LIVER FIRM', 'SPLEEN PALPABLE', 'SPIDERS', 'ASCITES', 'VARICES', 'BILIRUBIN', 'ALK PHOSPHATE', 'SGOT', 'ALBUMIN', 'PROTIME', 'HISTOLOGY']
+data.head()
+data.shape
+data.isna().sum()
+data
+data.replace('?', np.nan, inplace=True)
+data
+data.dropna(inplace=True)
+data = data.astype(float)
+data
+zv = np.abs((data-data.mean())/ data.std())
+out = zv > 3
+data = data[~out.any(axis=1)]
+data
+X = data.drop('HISTOLOGY', axis=1)
+y = data['HISTOLOGY']
+x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=46)
+reg = LogisticRegression()
+reg.fit(x_train, y_train)
+result = reg.predict(x_test)
+nvg = MultinomialNB()
+nvg.fit(x_train, y_train)
+result2 = nvg.predict(x_test)
+nvgg = GaussianNB()
+nvgg.fit(x_train, y_train)
+result3 = nvgg.predict(x_test)
+z1 = accuracy_score(y_test, result)
+z2 = accuracy_score(y_test, result2)
+z3 = accuracy_score(y_test, result3)
+print('Logistic Regression Accuracy : ', z1)
+print('Multinomial NB Accuracy : ', z1)
+print('Gaussian NB Accuracy : ', z1)

@@ -1,0 +1,152 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+col_names = ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal', 'target']
+
+# Load each dataset
+cleavland_dataset = pd.read_csv("Cleavland.csv", header=None, names=col_names)
+hung_dataset = pd.read_csv("hung.csv", header=None, names=col_names)
+switzerland_dataset = pd.read_csv("Switzerland.csv", header=None, names=col_names)
+cleavland_dataset.shape
+hung_dataset.shape
+switzerland_dataset.shape
+all_data = pd.concat([cleavland_dataset, hung_dataset, switzerland_dataset], ignore_index=True)
+all_data.head()
+all_data.shape
+df = all_data
+for col in col_names:
+  print(col, df[col].unique())
+# We can see there is inconsistency in above data as some values are of type string and some of type int to handle this
+# Convert columns to proper numeric format
+df['trestbps'] = pd.to_numeric(df['trestbps'], errors='coerce')
+df['chol'] = pd.to_numeric(df['chol'], errors='coerce')
+df['thalach'] = pd.to_numeric(df['thalach'], errors='coerce')
+df['oldpeak'] = pd.to_numeric(df['oldpeak'], errors='coerce')
+df['ca'] = pd.to_numeric(df['ca'], errors='coerce')
+df['slope'] = pd.to_numeric(df['slope'], errors='coerce')
+df['thal'] = pd.to_numeric(df['thal'], errors='coerce')
+# We use pd.to_numeric() to convert the specified columns to numeric format.
+# The errors='coerce' parameter ensures that any values that cannot be converted to numeric format will be replaced with NaN (missing values).
+for col in col_names:
+  print(col, df[col].unique())
+df['trestbps'].fillna(df['trestbps'].mean(), inplace=True)
+df['chol'].fillna(df['chol'].mean(), inplace=True)
+df['thalach'].fillna(df['thalach'].mean(), inplace=True)
+df['oldpeak'].fillna(df['oldpeak'].mean(), inplace=True)
+# As ca and thal values have limited set of specific values so we will replace null values with mode
+# Mode will give me max occured frequency of them
+df['ca'].fillna(df['ca'].mode()[0], inplace=True)
+df['thal'].fillna(df['thal'].mode()[0], inplace=True)
+df['slope'].fillna(df['slope'].mode()[0], inplace=True)
+df.isna().sum()
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+def visualize_boxplots(df):
+
+  # get the number of numerical columns
+  num_cols = len(df.select_dtypes(include=['float64', 'int64']).columns)
+
+  num_rows = (num_cols + 3) // 4
+  num_cols = min(num_cols, 4)
+
+  fig, axes = plt.subplots(num_rows, num_cols, figsize=(16, 4*num_rows))
+
+  # flatten axes if needed
+  axes = axes.flatten()
+
+  for i, column in enumerate(df.select_dtypes(include=['float64', 'int64']).columns):
+    sns.boxplot(ax=axes[i], x=df[column])
+    axes[i].set_xlabel(column)
+    axes[i].set_title(f'box plot for {column}')
+
+
+  for j in range(i+1, len(axes)):
+    axes[j].axis('off')
+
+  plt.tight_layout()
+  plt.show()
+
+visualize_boxplots(df)
+# Define threshold values for each column
+threshold_values = {
+    'age': 70,
+    'sex': 1,
+    'cp': 4,
+    'trestbps': 170,
+    'chol': 395,
+    'thalach': 1,
+    'oldpeak': 3,
+    'thalach': 250,
+    'target': 3,
+    'oldpeak': 3.5,
+    'slope': 3,
+    'ca': 5,  # Update threshold value for 'ca' column
+    'thal': 10  # Update threshold value for 'thal' column
+}
+def removal_boxplot(df, column, threshold):
+
+  sns.boxplot(df[column])
+  plt.title(f'Original boxplot for {column}')
+  plt.show()
+
+  removed_outliers = df[df[column] <= threshold]
+
+  sns.boxplot(removed_outliers[column])
+  plt.title(f'Boxplot after removal of Outliers for {column}')
+  plt.show()
+  return removed_outliers
+
+
+def removal_outliers_for_all_columns(df, threshold_values):
+  # Iterate over each column and corresponding threshold value
+  for column, threshold in threshold_values.items():
+
+    print(f'Removing outliers for columns : {column}')
+    df = removal_boxplot(df, column, threshold)
+
+  return df
+
+new_df = removal_outliers_for_all_columns(df, threshold_values)
+
+
+
+new_df
+df['sex'].replace(['F', 'M'], [0, 1], inplace=True)
+new_df[new_df['sex'] == 0].count().unique()
+(new_df.values == '?').sum()
+new_df = new_df.replace('?', np.nan)
+new_df = new_df.dropna()
+plt.figure(figsize=(10,10))
+sns.heatmap(data=new_df.corr(), cbar=True, square=True, fmt='.1f', annot=True)
+attribute = new_df[['age', 'sex', 'cp', 'thal', 'oldpeak', 'ca']]
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(attribute, new_df['target'], test_size=0.3, random_state=42)
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, r2_score, mean_absolute_error
+lr = LogisticRegression()
+lr.fit(x_train, y_train)
+y_pred = lr.predict(x_test)
+print('Accuracy of Logistic Regression : ', accuracy_score(y_test, y_pred))
+from sklearn.neighbors import KNeighborsClassifier
+error = []
+for i in range(1, 30):
+  knn = KNeighborsClassifier(n_neighbors = i)
+  knn.fit(x_train, y_train)
+  k_pred = knn.predict(x_test)
+  error.append(np.mean(k_pred != y_test))
+
+plt.figure(figsize=(12, 6))
+plt.plot(error, color='red', marker='o', markerfacecolor='blue', linestyle='dashed', markersize=10)
+plt.title('Error in K-Value')
+plt.xlabel('K Value')
+plt.ylabel('Mean Label')
+plt.show()
+classifier = KNeighborsClassifier()
+classifier.fit(x_train, y_train)
+y_pred = classifier.predict(x_test)
+
+confusion_mat = confusion_matrix(y_test, y_pred)
+confusion_mat
+
+print('Accuracy of K Neighbors classifier : ', accuracy_score(y_test, y_pred))

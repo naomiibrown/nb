@@ -1,0 +1,66 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+data = pd.read_csv('adult.csv')
+data.columns = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country', 'Target']
+data.head()
+data.shape
+data.isna().sum().sum()
+(data.values == '?').sum()
+data = data.replace('?', np.nan)
+data.dropna(inplace=True)
+data.isna().sum()
+data.shape
+# data['Target'].unique()
+data['marital-status'].unique()
+# data['sex'].unique()
+data = data.replace(' <=50K', 1)
+data = data.replace(' >50K', 2)
+
+data = data.replace(' Male', 1)
+data = data.replace(' Female', 2)
+data['Target'].unique()
+data_t = data[['age', 'fnlwgt', 'sex', 'hours-per-week', 'Target']]
+data_t.head()
+data_t = data_t.astype(float)
+data_t.shape
+def remove_outliers_zscore(data_t, threshold=3):
+  zscore = np.abs((data_t - data_t.mean()) / data_t.std())
+  out = zscore > 3
+  data_t = data_t[~out.any(axis=1)]
+
+  return data_t
+
+filtered_data = remove_outliers_zscore(data_t)
+filtered_data.head()
+filtered_data.shape
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+filtered_data.loc[filtered_data['Target'] == 1, 'Target'] = 'Y'
+filtered_data.loc[filtered_data['Target'] == 2, 'Target'] = 'N'
+
+le = LabelEncoder()
+le.fit(filtered_data['Target'])
+le.classes_
+filtered_data['Target'] = le.transform(filtered_data['Target'])
+filtered_data.head()
+filtered_data['Target'].unique()
+data1 = filtered_data
+X = data1.drop('Target', axis=1)
+y = data1['Target']
+
+x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+reg = LogisticRegression()
+reg.fit(x_train, y_train)
+y_pred_reg = reg.predict(x_test)
+print('Accuracy - Logistic Regression : ', accuracy_score(y_test, y_pred_reg))
+navi = GaussianNB()
+navi.fit(x_train, y_train)
+y_pred_navi = navi.predict(x_test)
+print('Accuracy - Naive Bayes : ', accuracy_score(y_test, y_pred_navi))
+
+print('Accuracy - Logistic Regression : ', accuracy_score(y_test, y_pred_reg))
+print('Accuracy - Naive Bayes : ', accuracy_score(y_test, y_pred_navi))

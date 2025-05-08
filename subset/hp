@@ -1,0 +1,26 @@
+import pandas as pd
+import numpy as np
+data = pd.read_csv('hepatitis.csv')
+data.columns = ['CLASS', 'AGE', 'SEX', 'STEROID', 'ANTIVIRALS', 'FATIGUE', 'MALAISE', 'ANOREXIA', 'LIVER BIG', 'LIVER FIRM', 'SPLEEN PALPABLE', 'SPIDERS', 'ASCITES', 'VARICES', 'BILIRUBIN', 'ALK PHOSPHATE', 'SGOT', 'ALBUMIN', 'PROTIME', 'HISTOLOGY']
+data.head()
+data.shape
+data.isna().sum()
+data['SEX'].unique()
+sex1 = data[data['SEX'] == 1]
+sex1
+sex2 = data[data['SEX'] == 2]
+sex2
+merged_data = pd.concat([sex1, sex2])
+merged_data
+sorted_data = data.sort_values('AGE')
+sorted_data
+sorted_data = data.sort_values('SGOT')
+sorted_data
+sorted_data = data.sort_values('PROTIME')
+sorted_data
+data_transpose = data.transpose()
+data_transpose
+melted_data = pd.melt(data, id_vars=['CLASS', 'AGE'], var_name='Metrics')
+melted_data
+casting = pd.pivot_table(data, index=['CLASS', 'AGE'], values='HISTOLOGY')
+casting

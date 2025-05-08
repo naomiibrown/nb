@@ -1,0 +1,32 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+data = pd.read_csv('./forestfires.csv')
+data.head()
+data.shape
+data1 = data.dropna()
+data1.shape
+data1.describe()
+data1.info()
+notAffected = data1[data1['area'] == 0]
+notAffected
+mostlyAffected = data1[data1['area'] > 13]
+mostlyAffected
+partiallyAffected = data1[(data1['area'] <= 13) & (data1['area'] > 0)]
+partiallyAffected
+merged_data = pd.concat([partiallyAffected, mostlyAffected])
+merged_data.shape
+merged_data
+data1.sort_values('temp', ascending=False)
+data1.sort_values('wind', ascending=False)
+data1.sort_values('area', ascending=False)
+data_transpose = data1.transpose()
+data_transpose
+plt.figure(figsize=(10, 10))
+plt.matshow(data1.corr());
+melting_data = pd.melt(data1, id_vars='area', value_vars=['temp'])
+melting_data
+casting = data1.pivot_table(index=['month'], values=['rain'], columns='area')
+casting.shape
+casting

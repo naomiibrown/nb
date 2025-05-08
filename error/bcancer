@@ -1,0 +1,55 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+data = pd.read_csv('BreastCancerWc.csv', header=None)
+data.columns = ['Sample Code number', 'Clump Thickness', 'Uniformity of Cell Size', 'Uniformity of Cell Shape', 'Marginal Adhesion', 'Single Epithelial Cell Size', 'Bare Nuclei', 'Bland Chromatin', 'Normal Nucleoli', 'Mitosis', 'Class']
+
+data.head()
+data.shape
+data.info()
+data.isna().sum().sum()
+(data.values == np.NaN).sum()
+(data.values == '?').sum()
+data = data.replace('?', np.nan)
+data.dropna(inplace=True)
+(data.values == '?').sum()
+data.shape
+data = data.astype(float)
+def remove_outliers_zscore(data, threshold=3):
+  zscore = np.abs((data - data.mean()) / data.std())
+  out = zscore > 3
+  data = data[~out.any(axis=1)]
+
+  return data
+
+filtered_data = remove_outliers_zscore(data)
+filtered_data.head()
+filtered_data.shape
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+filtered_data['Class'].unique()
+filtered_data.loc[filtered_data['Class'] == 2, 'Class'] = 'Y'
+filtered_data.loc[filtered_data['Class'] == 4, 'Class'] = 'N'
+filtered_data.head()
+le = LabelEncoder()
+le.fit(filtered_data['Class'])
+le.classes_
+data1 = filtered_data
+data1['Class'] = le.transform(data1['Class'])
+data1.head()
+data1['Class'].unique()
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+X = data1.drop('Class', axis=1)
+y = data1['Class']
+x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+reg = LogisticRegression()
+reg.fit(x_train, y_train)
+reg_pred = reg.predict(x_test)
+print('Accuracy of Regression : ', accuracy_score(y_test, reg_pred))
+navi = GaussianNB()
+navi.fit(x_train, y_train)
+navi_pred = navi.predict(x_test)
+print('Accuracy of Naive Bayes : ', accuracy_score(y_test, navi_pred))

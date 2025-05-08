@@ -1,0 +1,50 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+data = pd.read_csv('Iris.csv')
+data.columns = ['SepalLengthcm', 'SepalWidthcm', 'PetalLengthcm', 'PetalWidthcm', 'Species']
+
+data.head()
+data.shape
+data['Species'].unique()
+data[data == '?'].sum()
+data.isnull().sum().sum()
+data = data.replace('?', np.nan)
+data = data.dropna()
+data.head()
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+le = LabelEncoder()
+le.fit(data['Species'])
+le.classes_
+data['Species'] = le.transform(data['Species'])
+data.head()
+
+data.shape
+def remove_outliers_zscore(data, threshold=3):
+  z_scores = np.abs((data - data.mean()) / data.std())
+  out = z_scores > 3
+  data = data[~out.any(axis=1)]
+
+  return data
+
+filtered_data = remove_outliers_zscore(data)
+filtered_data.shape
+
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB, MultinomialNB
+from sklearn.metrics import accuracy_score
+X = data.drop('Species', axis=1)
+y = data['Species']
+x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+logreg = LogisticRegression()
+logreg.fit(x_train, y_train)
+y_pred_logreg = logreg.predict(x_test)
+gaussian = GaussianNB()
+gaussian.fit(x_train, y_train)
+y_pred_gaussian = gaussian.predict(x_test)
+z1 = accuracy_score(y_test, y_pred_logreg)
+z2 = accuracy_score(y_test, y_pred_gaussian)
+print("Accuracy - Logistic Regression : ", z1)
+print("Accuracy - Naive Bayes : ", z2)
