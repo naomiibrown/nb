@@ -1,0 +1,52 @@
+hive 
+create database flt;
+use flt;
+create table flt(fno int, source varchar(10), year int, delay float);
+alter table flt rename to airflt;
+alter table airflt add columns(dest varchar(10));
+drop table flt;
+
+create table flight(fno int, source varchar(10), year int, delay float)
+row format delimited
+fields terminated by ','
+lines terminated by '\n'
+stored as textfile;
+
+
+insert into flight values(215, 'Pune', 2025, 15.00);
+insert into flight values( 216,'Kolkata', 2024, 10.00);
+
+select * from flight;
+
+
+new terminal (text file)
+gedit ipp.txt - >
+217,'Delhi', 2023,5.00
+218,'Mumbai', 2022, 25.00
+219,'Nashik', 2021, 30.00
+220,'Nagpur', 2020, 35.00
+221,'Chennai',2019, 40.00
+
+hive terminal
+load data local inpath 'ipp.txt'
+overwrite into table flight;
+select * from flight;
+
+
+
+create table nflight(fno int, dest varchar(10), year int)
+row format delimited
+fields terminated by ','
+lines terminated by '\n'
+store as textfile;
+
+insert into nflight values(220,'Kharghar', 2020);
+select a.fno,a.source, a.year, a.delay, b.dest
+from flight a join nflight b
+on(a.fno = b.fno);
+
+
+
+
+
+ 
