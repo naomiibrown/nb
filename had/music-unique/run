@@ -1,0 +1,61 @@
+Step-by-Step Execution
+1. Prepare Your Development Environment
+Set up Eclipse with Hadoop:
+
+Install the Hadoop Eclipse plugin if not already installed
+
+Configure the Hadoop location in Eclipse (Window > Preferences > Hadoop Map/Reduce)
+
+Create a Java Project:
+
+File > New > Java Project
+
+Name it "MusicAnalysis" or similar
+
+Add the Hadoop libraries to your build path
+
+2. Add Your Code Files
+Create two packages in your project:
+
+MusicUnique (for both classes)
+
+Add your Java files:
+
+Music1.java
+
+TrackShared.java
+
+3. Prepare the Input Data
+Upload your music dataset to HDFS:
+
+bash
+hdfs dfs -mkdir /user/cloudera/music_input
+hdfs dfs -put local_music_data.csv /user/cloudera/music_input
+4. Run the Programs
+For Music1.java (Unique Listeners):
+Export as JAR:
+
+Right-click project > Export > Java > JAR file
+
+Select both classes, name it "MusicAnalysis.jar"
+
+Choose a location to save
+
+Run on Hadoop:
+
+bash
+hadoop jar MusicAnalysis.jar MusicUnique.Music1 /user/cloudera/music_input /user/cloudera/music_output_unique
+For TrackShared.java (Track Sharing):
+Use the same JAR file:
+
+bash
+hadoop jar MusicAnalysis.jar MusicUnique.TrackShared /user/cloudera/music_input /user/cloudera/music_output_shared
+5. Check Results
+View output for unique listeners:
+
+bash
+hdfs dfs -cat /user/cloudera/music_output_unique/part-r-00000
+View output for track sharing:
+
+bash
+hdfs dfs -cat /user/cloudera/music_output_shared/part-r-00000

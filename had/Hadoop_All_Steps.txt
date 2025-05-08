@@ -1,0 +1,86 @@
+Link : https://www.alluxio.io/learn/hdfs/basic-file-operations-commands
+
+1. Log in as a Hadoop user :    `su -l hdoop`(Username) 
+2. Ensure that Hadoop is installed in this user. See if this directory is present : `hadoop-3.4.0`
+3. Start Hadoop : Run the following command : `./hadoop-3.4.0/sbin/start-dfs.sh` 
+4. Now Create a directory : `hadoop fs -mkdir /niranjan` (path)
+Check if directory is created using web console
+5. Create a file in created directory : touch sample.txt 
+After this, give file writing permission using `chmod 777 sample.txt` and then write contents in that file using any text editor that you want. (Use Vim)
+6. Now upload the file into HDFS : `hadoop fs -copyFromLocal sample.txt /niranjan`
+7. Now create a Java Project and create a WordCount.java file:
+code -> 
+
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class WordCount {
+
+    public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable> {
+        private final static IntWritable one = new IntWritable(1);
+        private Text word = new Text();
+
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            StringTokenizer itr = new StringTokenizer(value.toString());
+            while (itr.hasMoreTokens()) {
+                word.set(itr.nextToken());
+                context.write(word, one);
+            }
+        }
+    }
+
+    public static class IntSumReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+        private IntWritable result = new IntWritable();
+
+        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+            int sum = 0;
+            for (IntWritable val : values) {
+                sum += val.get();
+            }
+            result.set(sum);
+            context.write(key, result);
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf, "word count");
+        job.setJarByClass(WordCount.class);
+        job.setMapperClass(TokenizerMapper.class);
+        job.setCombinerClass(IntSumReducer.class);
+        job.setReducerClass(IntSumReducer.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
+        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        System.exit(job.waitForCompletion(true) ? 0 : 1);
+    }
+}
+
+8. Add external jar files
+from /usr/local/hadoop/share/hadoop
+Import all jar files from common, hdfs and mapreduce
+
+9.Now create a jar file of the java project :
+Right Click on project --> Export --> Jar --> next, next ...Finish 
+It will not be saved in hadoop save it in te/pict.
+
+10. Move the file to hadoop using su and make sure that the file in in hadoop user(hdoop) and check if hadoop is started.
+
+11. Now type the following command :
+hadoop jar wordCount.jar /niranjan /Output
+
+12.Now take the file to local system :
+hadoop fs -copyToLocal /Output/part-r-00000 /home/te
+Make sure that you have te or directly keep it in home
+
